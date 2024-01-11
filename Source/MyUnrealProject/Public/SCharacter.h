@@ -20,6 +20,9 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ProjectileClass;
+
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
@@ -31,6 +34,7 @@ protected:
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void PrimaryAttack();
 
 public:	
 	// Called every frame
