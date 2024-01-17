@@ -21,8 +21,12 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	// assigning categories puts the properties in nice categories in the editor - easy to find
+	UPROPERTY(EditAnywhere, Category="Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	UAnimMontage* AttackAnimation;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -32,6 +36,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,6 +47,7 @@ protected:
 	void Jump(float Value);
 	void PrimaryAttack();
 	void PrimaryInteract();
+	void PrimaryAttack_TimeElapsed();
 
 public:	
 	// Called every frame

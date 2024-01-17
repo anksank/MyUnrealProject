@@ -63,15 +63,24 @@ void ASCharacter::Jump(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnimation);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+
+	// to clear timer in case player dies
+	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
-	FActorSpawnParameters SpawnParams;
-	
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	
-	// Transform - holds location, rotation & scale
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+    	
+    FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+    FActorSpawnParameters SpawnParams;
+    
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    
+    // Transform - holds location, rotation & scale
+    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }
 
 void ASCharacter::PrimaryInteract()
