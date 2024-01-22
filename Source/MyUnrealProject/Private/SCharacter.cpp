@@ -78,7 +78,8 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
     FActorSpawnParameters SpawnParams;
     
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    
+	SpawnParams.Instigator = this;
+	
     // Transform - holds location, rotation & scale
     GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }
