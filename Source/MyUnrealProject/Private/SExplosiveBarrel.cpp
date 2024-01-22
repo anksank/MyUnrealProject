@@ -14,7 +14,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	MeshComp->SetSimulatePhysics(true);
-	MeshComp->SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
+	// MeshComp->SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
 	RootComponent = MeshComp;
 	
 	ForceComp = CreateDefaultSubobject<URadialForceComponent>("ForceComp");
@@ -33,6 +33,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	
 }
 
+// runs before BeginPlay
 void ASExplosiveBarrel::PostInitializeComponents()
 {
 	// Don't forget to call parent function
@@ -44,6 +45,12 @@ void ASExplosiveBarrel::PostInitializeComponents()
 void ASExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	ForceComp->FireImpulse();
+
+	UE_LOG(LogTemp, Log, TEXT("OtherActor: %s, at game time: %f. HitComponent: %s. OtherComp: %s"), *GetNameSafe(OtherActor),
+		GetWorld()->TimeSeconds, *GetNameSafe(HitComponent), *GetNameSafe(OtherComp));
+
+	FString CombinedString = FString::Printf(TEXT("Hit @ Location: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 }
 
 

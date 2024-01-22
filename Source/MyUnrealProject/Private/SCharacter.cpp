@@ -25,6 +25,8 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 	
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
+
+	AttackAnimDelay = 0.2f;
 }
 
 // Called when the game starts or when spawned
@@ -64,7 +66,7 @@ void ASCharacter::Jump(float Value)
 void ASCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnimation);
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
 
 	// to clear timer in case player dies
 	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
@@ -72,16 +74,66 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
+	SpawnProjectile(ProjectileClass);
+}
+
+void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-    	
-    FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
-    FActorSpawnParameters SpawnParams;
-    
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
 	
-    // Transform - holds location, rotation & scale
-    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+	FCollisionObjectQueryParams ObjParams;
+	ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FCollisionShape Shape;
+	Shape.SetSphere(20.0f);
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	
+	FVector TraceStart = CameraComp->GetComponentLocation();
+
+	// looking 50 m towards the camera direction
+	FVector TraceEnd = CameraComp->GetComponentLocation() + (GetControlRotation().Vector() * 5000);
+
+	FHitResult Hit;
+	if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
+	{
+		// overwrite TraceEnd by the impact point in the world
+		TraceEnd = Hit.ImpactPoint;
+	}
+
+	FRotator ProjectileRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+
+	FTransform SpawnTM = FTransform(ProjectileRotation, HandLocation);
+	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::BlackHoleAttack()
+{
+	PlayAnimMontage(AttackAnimation);
+	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleAttack, this, &ASCharacter::BlackHoleAttack_TimeElapsed, AttackAnimDelay);
+}
+
+void ASCharacter::BlackHoleAttack_TimeElapsed()
+{
+	SpawnProjectile(BlackHoleProjectileClass);
+}
+
+void ASCharacter::Dash_TimeElapsed()
+{
+	SpawnProjectile(DashProjectileClass);
+}
+
+void ASCharacter::Dash()
+{
+	PlayAnimMontage(AttackAnimation);
+	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, AttackAnimDelay);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -93,7 +145,6 @@ void ASCharacter::PrimaryInteract()
 void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -110,5 +161,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+
+	// Used generic name 'SecondaryAttack' for binding
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ASCharacter::BlackHoleAttack);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ASCharacter::Dash);
 }
 
