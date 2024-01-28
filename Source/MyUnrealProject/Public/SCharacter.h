@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USAttributeComponent* PlayerAttribute;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 	FTimerHandle TimerHandle_BlackHoleAttack;

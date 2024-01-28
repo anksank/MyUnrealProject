@@ -26,6 +26,8 @@ ASCharacter::ASCharacter()
 	
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
+	PlayerAttribute = CreateDefaultSubobject<USAttributeComponent>("PlayerAttribute");
+	
 	AttackAnimDelay = 0.2f;
 }
 
