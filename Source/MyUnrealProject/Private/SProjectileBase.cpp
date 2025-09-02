@@ -3,6 +3,7 @@
 
 #include "SProjectileBase.h"
 
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -13,9 +14,9 @@ ASProjectileBase::ASProjectileBase()
 	SphereComp->SetCollisionProfileName("Projectile");
 	RootComponent = SphereComp;
 
-	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
-	EffectComp->SetupAttachment(SphereComp);
-
+	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("NiagaraComp");
+	NiagaraComponent->SetupAttachment(SphereComp);
+	
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComp");
 	MovementComp->InitialSpeed = 8000.0f;
 	MovementComp->bRotationFollowsVelocity = true;

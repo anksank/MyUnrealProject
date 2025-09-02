@@ -8,6 +8,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "SProjectileBase.generated.h"
 
+class UNiagaraComponent;
+
 UCLASS(Abstract)
 class MYUNREALPROJECT_API ASProjectileBase : public AActor
 {
@@ -29,7 +31,7 @@ protected:
 	UProjectileMovementComponent* MovementComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UParticleSystemComponent* EffectComp;
+	UNiagaraComponent* NiagaraComponent;
 
 	// virtual - so that the method can be overridden by child classes
 	UFUNCTION()
